@@ -58,8 +58,9 @@ jobs:
             -ldflags "-s -w -X ${moduleRoot}/cli/app.version=${version} -X ${moduleRoot}/cli/app.build=${buildSha}" \
             -o ${buildDir}/bin/${APP_NAME} .
       - name: Package
+        working-directory: build
         run: |
-          zip -r build/assets.zip bin/ plugins/
+          zip -r assets.zip bin/ plugins/
       - name: Upload Release Assets
         uses: alexellis/upload-assets@0.4.1
         env:
