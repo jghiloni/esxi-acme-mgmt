@@ -48,8 +48,8 @@ jobs:
           buildSha=${GITHUB_SHA:0:7}
           
           moduleRoot=$(grep "^module" go.mod | cut -d ' ' -f 2)
-          go build -s -w -trimpath \
-            -ldflags "-X ${moduleRoot}/cli/app.version=${version} -X ${moduleRoot}/cli/app.build=${buildSha}" \
+          go build -trimpath \
+            -ldflags "-s -w -X ${moduleRoot}/cli/app.version=${version} -X ${moduleRoot}/cli/app.build=${buildSha}" \
             -o ${buildDir}/${APP_NAME}-${version} .
       - name: Upload Release Assets
         uses: alexellis/upload-assets@0.4.1
