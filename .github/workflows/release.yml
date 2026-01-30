@@ -20,7 +20,7 @@ jobs:
           APP: "${{github.repository}}"
         run: |
           appName=$(basename "$APP")
-          mkdir -p build
+          mkdir -p build/{bin,plugins}
           echo "APP_NAME=$appName" >> ${GITHUB_ENV}
       - name: Setup Go
         uses: actions/setup-go@v6
@@ -39,7 +39,7 @@ jobs:
             pushd $plugin
             
             name=$(basename $plugin)
-            go build -buildmode=plugin -o ${buildDir}/${name}.so .
+            go build -buildmode=plugin -o ${buildDir}/plugins/${name}.so .
           
             popd
           done
@@ -56,10 +56,13 @@ jobs:
           moduleRoot=$(grep "^module" go.mod | cut -d ' ' -f 2)
           go build -trimpath \
             -ldflags "-s -w -X ${moduleRoot}/cli/app.version=${version} -X ${moduleRoot}/cli/app.build=${buildSha}" \
-            -o ${buildDir}/${APP_NAME}-${version} .
+            -o ${buildDir}/bin/${APP_NAME} .
+      - name: Package
+        run: |
+          zip -r build/assets.zip bin/ plugins/
       - name: Upload Release Assets
         uses: alexellis/upload-assets@0.4.1
         env:
           GITHUB_TOKEN: ${{github.token}}
         with:
-          asset_paths: '["build/*"]'
+          asset_paths: '["build/assets.zip"]'
