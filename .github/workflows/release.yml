@@ -4,6 +4,10 @@ on:
     types:
       - published
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build-release:
     name: Build binaries and update release assets
@@ -22,6 +26,8 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: "stable"
+          cache: true
+          cache-dependency-path: plugins/route53/go.sum
       - name: Build Plugins
         env:
           GOOS: linux
