@@ -1,0 +1,62 @@
+name: Build Release Assets
+on:
+  release:
+    types:
+      - prereleased
+      - published
+
+permissions:
+  contents: write
+  id-token: read
+
+jobs:
+  build-release:
+    name: Build binaries and update release assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v6
+      - name: Prepare Build Assets
+        env:
+          APP: "${{github.repository}}"
+        run: |
+          appName=$(basename "$APP")
+          mkdir -p build
+          echo "APP_NAME=$appName" >> ${GITHUB_ENV}
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "stable"
+      - name: Build Plugins
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          buildDir=${GITHUB_WORKSPACE}/build
+          dirs=( $(find plugins -type f -name 'plugin.go' -exec dirname {} \;) )
+          for plugin in ${dirs[@]}; do
+            pushd $plugin
+            
+            name=$(basename $plugin)
+            go build -buildmode=shared -o ${buildDir}/${name}.so .
+          
+            popd
+          done
+      - name: Build CLI
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        working-directory: cli
+        run: |
+          buildDir=${GITHUB_WORKSPACE}/build
+          version=${GITHUB_REF#refs/*/}
+          buildSha=${GITHUB_SHA:0:7}
+          
+          moduleRoot=$(grep "^module" go.mod | cut -d ' ' -f 2)
+          go build -s -w -trimpath \
+            -ldflags "-X ${moduleRoot}/cli/app.version=${version} -X ${moduleRoot}/cli/app.build=${buildSha}" \
+            -o ${buildDir}/${APP_NAME}-${version} .
+      - name: Upload Release Assets
+        uses: alexellis/upload-assets@0.4.1
+        with:
+          asset_paths: '["build/*"]'
