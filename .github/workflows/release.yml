@@ -1,5 +1,8 @@
 name: Build Release Assets
 on:
+  push:
+    branches:
+      - main
   release:
     types:
       - published
@@ -9,12 +12,40 @@ permissions:
   packages: write
 
 jobs:
+  run-tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v6
+      - name: Create Go Cache Dependency Path
+        run: |
+          find . -name 'go.sum' -exec cat {} \; | sort -u > actions.sum
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "stable"
+          cache: true
+          cache-dependency-path: actions.sum
+      - name: Run Tests
+        run: |
+          for mod in $(find . -name 'go.mod'); do
+            dir=$(dirname $mod)
+            pushd $dir
+              go test ./...
+            popd
+          done
+
   build-release:
+    if: github.event_name == 'release'
     name: Build binaries and update release assets
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v6
+      - name: Create Go Cache Dependency Path
+        run: |
+          find . -name 'go.sum' -exec cat {} \; | sort -u > actions.sum
       - name: Prepare Build Assets
         env:
           APP: "${{github.repository}}"
@@ -27,7 +58,7 @@ jobs:
         with:
           go-version: "stable"
           cache: true
-          cache-dependency-path: plugins/route53/go.sum
+          cache-dependency-path: actions.sum
       - name: Build Plugins
         env:
           GOOS: linux
@@ -37,10 +68,8 @@ jobs:
           dirs=( $(find plugins -type f -name 'plugin.go' -exec dirname {} \;) )
           for plugin in ${dirs[@]}; do
             pushd $plugin
-            
-            name=$(basename $plugin)
-            go build -buildmode=plugin -o ${buildDir}/plugins/${name}.so .
-          
+              name=$(basename $plugin)
+              go build -buildmode=plugin -o ${buildDir}/plugins/${name}.so .
             popd
           done
       - name: Build CLI

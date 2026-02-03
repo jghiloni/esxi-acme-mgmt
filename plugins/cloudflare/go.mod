@@ -5,16 +5,18 @@ go 1.25.6
 require (
 	github.com/alecthomas/kong v1.13.0
 	github.com/caddyserver/certmagic v0.25.1
-	github.com/jghiloni/esxi-acme-mgmt/plugins/common v0.0.0-20260130030503-5c263b4c4ee2
+	github.com/jghiloni/esxi-acme-mgmt/plugins/common v0.0.0-20260130032004-ce952e81ab66
 	github.com/libdns/cloudflare v0.2.2
 	github.com/mholt/acmez/v3 v3.1.4
 )
 
 require (
 	github.com/caddyserver/zerossl v0.1.4 // indirect
+	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/libdns/libdns v1.1.1 // indirect
 	github.com/miekg/dns v1.1.72 // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/zeebo/blake3 v0.2.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.1 // indirect

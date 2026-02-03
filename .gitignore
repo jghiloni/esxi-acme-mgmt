@@ -27,3 +27,5 @@ go.work.sum
 
 # Goland IDE settings
 .idea/**
+
+actions.sum

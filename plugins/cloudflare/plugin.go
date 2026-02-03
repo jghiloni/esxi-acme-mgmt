@@ -15,7 +15,7 @@ const providerName = "cloudflare"
 
 type providerArgs struct {
 	APIToken  string `env:"CLOUDFLARE_API_TOKEN"`
-	ZoneToken string `env:"CLOUDFLARE_ZONE_TOKEN"`
+	ZoneToken string `env:"CLOUDFLARE_ZONE_TOKEN" optional:"true"`
 }
 
 type cloudflarePluginProvider struct {

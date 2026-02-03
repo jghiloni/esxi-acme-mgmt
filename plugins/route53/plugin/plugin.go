@@ -1,4 +1,4 @@
-package main
+package plugin
 
 import (
 	"context"
@@ -59,8 +59,11 @@ func (r *route53PluginProvider) WithArgs(args []string) {
 	}
 }
 
-var DNSProvider common.Provider = new(route53PluginProvider)
+func NewRoute53Plugin(args ...string) common.Provider {
+	r := &route53PluginProvider{}
+	if len(args) > 0 {
+		r.WithArgs(args)
+	}
 
-func main() {
-	// no op for a plugin
+	return r
 }
