@@ -29,8 +29,7 @@ jobs:
           cache-dependency-path: actions.sum
       - name: Run Tests
         run: |
-          for mod in $(find . -name 'go.mod'); do
-            dir=$(dirname $mod)
+          for dir in $(find . -name '*_test.go' -exec dirname {} \;); do
             pushd $dir
               go test ./...
             popd
